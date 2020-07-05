@@ -37,6 +37,8 @@ from sklearn.metrics import confusion_matrix
 import os
 import tensorflow as tf
 import keras.backend.tensorflow_backend as tf_back
+import h5py
+
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 np.random.seed(0)
@@ -89,7 +91,7 @@ class DataLoader():
             return data
 
     @staticmethod
-    def download_data(folders, threshold=5000000, data="healthy", mode="full"):
+    def download_data(folders, threshold=5000000, data="healthy", mode="full", save_method = "npy"):
         train_imgs = []
         count = 0
 
@@ -139,8 +141,21 @@ class DataLoader():
                             train_imgs.append(img_mod_list)
                 else:
                     print("No such data")
-        np.save("./dataset_" + data + ".npy", train_imgs)
 
+
+        if save_method == "npy":
+            np.save("./dataset_" + data + ".npy", train_imgs)
+
+        elif save_method == "hdf5":
+            try:
+                hdf5_dataset = h5py.File("./dataset_" + data, "w")
+                dset = hdf5_dataset.create_dataset('train_imgs', data=train_imgs)
+            except:
+                hdf5_dataset = h5py.File("./dataset_" + data, "a")
+                del hdf5_dataset['train_imgs']
+                hdf5_dataset.create_dataset("train_imgs", data=train_imgs)
+                print('File already exists. Overwriting...')
+            hdf5_dataset.close()
 
 class PreProcessor():
     """# Loading Training Data (Preprocessing)"""
@@ -333,6 +348,12 @@ if __name__ == '__main__':
     model.run(train_data[0:100], vald_data[0:100])
 
     autoencoder = load_model("./Models/Best_Model.h5")
+
+
+
+
+
+
 
 # Everything below, I dont need for now.
 

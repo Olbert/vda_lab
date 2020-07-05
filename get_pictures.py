@@ -72,6 +72,9 @@ model = Autoencoder()
 
 # model.run(train_data, vald_data)
 
+
+""" Just write model path here"""
+
 model.load("./Models/Best_Model_04_07_2.h5")
 
 pred = model.autoencoder.predict(train_data[np.newaxis,0])
